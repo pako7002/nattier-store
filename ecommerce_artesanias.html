@@ -1,0 +1,1775 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nattier Store - Artesanías Tejidas a Mano</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="header">
+        <nav class="nav container">
+            <a href="#" class="logo" onclick="showPage('home')"><img src="logo.jpeg" alt="Nattier Store Logo" style="height: 60px; border-radius: 6px; box-shadow: 0 0 0 2px #667eea, 0 0 0 3px white, 0 0 8px 5px rgba(255, 255, 255, 0.5);"></a>
+            <ul class="nav-links">
+                <li><a href="#" onclick="showPage('home')">Inicio</a></li>
+                <li><a href="#" onclick="showPage('products')">Productos</a></li>
+                <li id="myOrdersButton" style="display:none;"><a href="#" onclick="showPage('my-orders')">Mis Pedidos</a></li>
+                <li>
+                    <span class="cart-icon" onclick="showPage('cart')">
+                        🛒 <span class="cart-count" id="cartCount">0</span>
+                    </span>
+                </li>
+                <li id="authButton">
+                    <a href="#" class="btn btn-primary" onclick="showPage('login')">Iniciar Sesión</a>
+                </li>
+                <li id="adminButton" style="display:none;">
+                    <a href="#" class="btn btn-secondary" onclick="showPage('admin')">Admin</a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="main-content container">
+        <!-- Página de Inicio -->
+        <div id="home" class="page active">
+            <section class="hero">
+                <div style="display: flex; align-items: center; justify-content: center; gap: 2rem; text-align: left;">
+                    <img src="logo.jpeg" alt="Nattier Store Logo" style="height: 230px; border-radius: 20px; box-shadow: 0 0 0 5px #667eea, 0 0 0 10px white, 0 0 30px 15px rgba(255, 255, 255, 0.5);">
+                    <div>
+                        <h1 style="text-shadow: 0 0 10px rgba(255, 255, 255, 0.68);">Artesanías Tejidas Únicas</h1>
+                        <p style="text-shadow: 0 0 8px rgba(255, 255, 255, 0.595);">Descubre productos artesanales hechos a mano con amor y tradición</p>
+                    </div>
+                </div>
+                <a href="#" class="btn btn-primary" onclick="showPage('products')" style="margin-top: 2rem;">Ver Productos</a>
+            </section>
+        </div>
+
+        <!-- Página de Productos -->
+        <div id="products" class="page">
+            <div class="filters">
+                <select class="filter-select" id="categoryFilter" onchange="filterProducts()">
+                    <option value="">Todas las categorías</option>
+                    <option value="ropa">Ropa</option>
+                    <option value="accesorios">Accesorios</option>
+                    <option value="decoracion">Decoración</option>
+                </select>
+                <select class="filter-select" id="priceFilter" onchange="filterProducts()">
+                    <option value="">Todos los precios</option>
+                    <option value="0-80000">$0 - $80,000</option>
+                    <option value="80000-120000">$80,000 - $120,000</option>
+                    <option value="120000-999999">$120,000+</option>
+                </select>
+                <select class="filter-select" id="sortFilter" onchange="filterProducts()">
+                    <option value="default">Ordenar por defecto</option>
+                    <option value="price_asc">Precio: Menor a Mayor</option>
+                    <option value="price_desc">Precio: Mayor a Menor</option>
+                </select>
+                <input type="text" class="filter-select" id="searchInput" placeholder="Buscar productos..." onkeyup="filterProducts()">
+            </div>
+            <div class="products-grid" id="productsGrid">
+                 <p style="text-align: center; grid-column: 1 / -1;">Cargando productos...</p>
+            </div>
+        </div>
+
+        <!-- Página del Carrito -->
+        <div id="cart" class="page">
+            <div class="cart-items">
+                <h2>Tu Carrito de Compras</h2>
+                <div id="cartItems"></div>
+                <div class="cart-total">
+                    <h3>Total: <span id="cartTotal">0</span></h3>
+                    <button class="btn btn-primary" onclick="showPage('checkout')" id="checkoutBtn" disabled>
+                        Proceder al Pago
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Página de Checkout -->
+        <div id="checkout" class="page">
+            <div class="form-container">
+                <h2>Finalizar Compra</h2>
+                <form id="checkoutForm">
+                    <div class="form-group">
+                        <label>Nombre Completo</label>
+                        <input type="text" id="checkoutName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="checkoutEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="tel" id="checkoutPhone" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Dirección</label>
+                        <textarea rows="3" id="checkoutAddress" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Método de Pago</label>
+                        <select id="paymentMethod" required onchange="togglePaymentForm()">
+                            <option value="">Seleccionar...</option>
+                            <option value="mercadopago">MercadoPago Simulado</option>
+                            <option value="paypal">PayPal</option>
+                            <option value="transferencia">Transferencia Bancaria</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Formulario de Tarjeta de Crédito (MercadoPago Simulado) -->
+                    <div id="creditCardForm" style="display: none;">
+                        <h3 style="color: #667eea; margin: 1.5rem 0 1rem 0;">💳 Datos de la Tarjeta</h3>
+                        <div class="form-group">
+                            <label>Número de Tarjeta</label>
+                            <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19">
+                            <small id="cardType" style="color: #667eea; font-weight: bold;"></small>
+                        </div>
+                        <div style="display: flex; gap: 1rem;">
+                            <div class="form-group" style="flex: 1;">
+                                <label>Fecha de Expiración</label>
+                                <input type="text" id="expiryDate" placeholder="MM/AA" maxlength="5">
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label>Código CVV</label>
+                                <input type="text" id="cvvCode" placeholder="123" maxlength="4">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Nombre en la Tarjeta</label>
+                            <input type="text" id="cardHolderName" placeholder="Como aparece en la tarjeta" style="text-transform: uppercase;">
+                        </div>
+                        <div class="form-group">
+                            <label>Cuotas</label>
+                            <select id="installments">
+                                <option value="1">1 cuota sin interés</option>
+                                <option value="3">3 cuotas sin interés</option>
+                                <option value="6">6 cuotas sin interés</option>
+                                <option value="12">12 cuotas con interés</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="checkout-summary" style="background: #f8f9fa; padding: 1rem; border-radius: 10px; margin: 1rem 0;">
+                        <h3>Resumen del Pedido</h3>
+                        <div id="checkoutCartItems"></div>
+                        <hr>
+                        <div style="display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: bold; color: #667eea;">
+                            <span>Total a Pagar:</span>
+                            <span id="checkoutTotal">$0</span>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem; font-size: 1.1rem;">
+                        🔒 Procesar Pago Seguro
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Página de Mis Pedidos -->
+        <div id="my-orders" class="page">
+            <div class="admin-panel"> 
+                <h2>Mis Pedidos</h2>
+                <div id="myOrdersList"></div>
+            </div>
+        </div>
+
+        <!-- Página de Login -->
+        <div id="login" class="page">
+            <div class="form-container">
+                <h2>Iniciar Sesión</h2>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="loginEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Contraseña</label>
+                        <input type="password" id="loginPassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Ingresar</button>
+                    <p style="text-align: center; margin-top: 1rem;">
+                        ¿No tienes cuenta? <a href="#" onclick="showPage('register')">Regístrate aquí</a>
+                    </p>
+                    <p style="text-align: center; margin-top: 1rem;">
+                        <a href="#" onclick="openModal('forgotPasswordModal')">¿Olvidaste tu contraseña?</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+
+        <!-- Página de Registro -->
+        <div id="register" class="page">
+            <div class="form-container">
+                <h2>Crear Cuenta</h2>
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label>Nombre Completo</label>
+                        <input type="text" id="registerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="registerEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Contraseña</label>
+                        <input type="password" id="registerPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirmar Contraseña</label>
+                        <input type="password" id="registerConfirmPassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Registrarse</button>
+                    <p style="text-align: center; margin-top: 1rem;">
+                        ¿Ya tienes cuenta? <a href="#" onclick="showPage('login')">Inicia sesión aquí</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+
+        <!-- Panel de Administración -->
+        <div id="admin" class="page">
+            <div class="admin-panel">
+                <h2>Panel de Administración</h2>
+                <div class="admin-tabs">
+                    <button class="admin-tab active" onclick="showAdminTab(event, 'dashboard')">Dashboard</button>
+                    <button class="admin-tab" onclick="showAdminTab(event, 'products-admin')">Productos</button>
+                    <button class="admin-tab" onclick="showAdminTab(event, 'orders')">Pedidos</button>
+                    <button class="admin-tab" onclick="showAdminTab(event, 'users')">Usuarios</button>
+                </div>
+
+                <!-- Dashboard -->
+                <div id="dashboard" class="admin-content active">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalProducts">0</div>
+                            <div>Productos</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalOrders">0</div>
+                            <div>Pedidos</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalUsers">0</div>
+                            <div>Usuarios</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number"><span id="totalRevenue">0</span></div>
+                            <div>Ventas</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gestión de Productos -->
+                <div id="products-admin" class="admin-content">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h3>Gestión de Productos</h3>
+                        <button class="btn btn-primary" onclick="openAddProductModal()">Agregar Producto</button>
+                    </div>
+                    <div id="adminProductsList"></div>
+                </div>
+
+                <!-- Gestión de Pedidos -->
+                <div id="orders" class="admin-content">
+                    <h3>Gestión de Pedidos</h3>
+                    <div id="ordersList"></div>
+                </div>
+
+                <!-- Gestión de Usuarios -->
+                <div id="users" class="admin-content">
+                    <h3>Gestión de Usuarios</h3>
+                    <div id="usersList"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal para agregar/editar producto -->
+    <div id="addProductModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('addProductModal')">&times;</span>
+            <h3 id="modalTitle">Agregar Nuevo Producto</h3>
+            <form id="addProductForm">
+                <input type="hidden" id="productId" value="">
+                <div class="form-group">
+                    <label>Nombre del Producto</label>
+                    <input type="text" id="productName" required>
+                </div>
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea id="productDescription" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Precio</label>
+                    <input type="number" id="productPrice" required>
+                </div>
+                <div class="form-group">
+                    <label>Stock</label>
+                    <input type="number" id="productStock" required>
+                </div>
+                <div class="form-group">
+                    <label>Categoría</label>
+                    <select id="productCategory" required>
+                        <option value="">Seleccionar...</option>
+                        <option value="ropa">Ropa</option>
+                        <option value="accesorios">Accesorios</option>
+                        <option value="decoracion">Decoración</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Imagen del Producto</label>
+                    <input type="file" id="productImage" accept="image/*">
+                </div>
+                <button type="submit" class="btn btn-primary">Guardar Producto</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para ver detalles del pedido -->
+    <div id="orderDetailsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('orderDetailsModal')">&times;</span>
+            <h3>Detalles del Pedido</h3>
+            <div id="orderDetailsContent"></div>
+        </div>
+    </div>
+
+    <!-- Modal para contraseña olvidada -->
+    <div id="forgotPasswordModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('forgotPasswordModal')">&times;</span>
+            <h3>Restablecer Contraseña</h3>
+            <form id="forgotPasswordForm">
+                <div class="form-group">
+                    <label>Ingresa tu correo electrónico</label>
+                    <input type="email" id="forgotEmail" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Enviar Enlace</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para ingresar nueva contraseña -->
+    <div id="resetPasswordModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('resetPasswordModal')">&times;</span>
+            <h3>Ingresa tu Nueva Contraseña</h3>
+            <form id="resetPasswordForm">
+                <div class="form-group">
+                    <label>Nueva Contraseña</label>
+                    <input type="password" id="resetNewPassword" required>
+                </div>
+                <div class="form-group">
+                    <label>Confirmar Nueva Contraseña</label>
+                    <input type="password" id="resetConfirmPassword" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Guardar Contraseña</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para editar usuario -->
+    <div id="editUserModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('editUserModal')">&times;</span>
+            <h3>Editar Usuario</h3>
+            <form id="editUserForm">
+                <input type="hidden" id="editUserId" value="">
+                <div class="form-group">
+                    <label>Nombre Completo</label>
+                    <input type="text" id="editUserName" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="editUserEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Rol</label>
+                    <select id="editUserRol" required>
+                        <option value="usuario">Usuario</option>
+                        <option value="admin">Administrador</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Estado</label>
+                    <select id="editUserActivo" required>
+                        <option value="1">Activo</option>
+                        <option value="0">Inactivo</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Estado de la aplicación
+        let currentUser = null;
+        let isAdmin = false;
+        let products = [];
+        let cart = [];
+        let orders = [];
+        let users = [];
+        let resetToken = null;
+
+        // URL de la API
+        const API_URL = 'http://localhost/Nattier_Store/api/';
+
+        // --- LÓGICA DE ADMINISTRACIÓN ---
+        async function updateAdminProductsList() {
+            if (!isAdmin) return;
+            const container = document.getElementById('adminProductsList');
+            container.innerHTML = '<p>Cargando productos para administración...</p>';
+            try {
+                // La variable `products` ya está cargada globalmente por `loadProducts`
+                container.innerHTML = '';
+                if (products.length > 0) {
+                    const table = document.createElement('table');
+                    table.className = 'admin-table';
+                    table.innerHTML = `
+                        <thead>
+                            <tr>
+                                <th>ID</th><th>Nombre</th><th>Precio</th><th>Stock</th><th>Categoría</th><th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${products.map(product => `
+                                <tr>
+                                    <td>${product.id}</td>
+                                    <td>${product.nombre}</td>
+                                    <td>${parseFloat(product.precio).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}</td>
+                                    <td>${product.stock}</td>
+                                    <td>${product.categoria_nombre}</td>
+                                    <td>
+                                        <button class="btn btn-secondary" onclick="editProduct(${product.id})">Editar</button>
+                                        <button class="btn" onclick="deleteProduct(${product.id})" style="background: #ff4757; color: white;">Eliminar</button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    `;
+                    container.appendChild(table);
+                } else {
+                    container.innerHTML = '<p>No hay productos para mostrar.</p>';
+                }
+            } catch (error) {
+                container.innerHTML = '<p class="error-message">Error al cargar productos para administración.</p>';
+                console.error('Error al cargar productos para administración:', error);
+            }
+        }
+
+        async function updateAdminStats() {
+            if (!isAdmin) return;
+            try {
+                const response = await fetch(API_URL + 'estadisticas.php', {
+                    headers: { 'Authorization': `Bearer ${currentUser.id}` }
+                });
+                const result = await response.json();
+                if (result.success) {
+                    document.getElementById('totalProducts').textContent = result.stats.total_productos;
+                    document.getElementById('totalOrders').textContent = result.stats.total_pedidos;
+                    document.getElementById('totalUsers').textContent = result.stats.total_usuarios;
+                    const revenue = parseFloat(result.stats.total_ingresos || 0);
+                    document.getElementById('totalRevenue').textContent = revenue.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 });
+                } else {
+                    console.error('Error al cargar estadísticas:', result.message);
+                }
+            } catch (error) {
+                console.error('Error de conexión al cargar estadísticas:', error);
+            }
+        }
+
+        function showAdminTab(event, tabName) {
+            document.querySelectorAll('.admin-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.admin-content').forEach(content => content.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+            if (tabName === 'dashboard') updateAdminStats();
+            if (tabName === 'products-admin') updateAdminProductsList();
+            if (tabName === 'users') displayUsers();
+            if (tabName === 'orders') displayOrders();
+        }
+
+        async function displayUsers() {
+            if (!isAdmin) return;
+            try {
+                const response = await fetch(API_URL + 'usuarios.php', {
+                    headers: { 'Authorization': `Bearer ${currentUser.id}` }
+                });
+                const result = await response.json();
+                const container = document.getElementById('usersList');
+                container.innerHTML = '';
+                if (result.success) {
+                    users = result.usuarios; // Asignar a la variable global users
+                    if (users.length === 0) {
+                        container.innerHTML = '<p>No se encontraron usuarios.</p>';
+                        return;
+                    }
+                    const table = document.createElement('table');
+                    table.className = 'admin-table';
+                    table.innerHTML = `
+                        <thead>
+                            <tr>
+                                <th>ID</th><th>Nombre</th><th>Email</th><th>Rol</th><th>Estado</th><th>Fecha de Registro</th><th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${users.map(user => `
+                                <tr data-user-id="${user.id}" style="${!user.activo ? 'opacity: 0.6; background-color: #f8f9fa;' : ''}">
+                                    <td>${user.id}</td>
+                                    <td>${user.nombre}</td>
+                                    <td>${user.email}</td>
+                                    <td>${user.rol}</td>
+                                    <td><span style="color: ${user.activo ? '#28a745' : '#dc3545'}; font-weight: bold;">${user.activo ? 'Activo' : 'Inactivo'}</span></td>
+                                    <td>${new Date(user.fecha_registro).toLocaleString()}</td>
+                                    <td>
+                                        <button class="btn btn-secondary btn-sm" onclick="openEditUserModal(${user.id})">Editar</button>
+                                        <button class="btn btn-secondary btn-sm" onclick="updateUserRole(${user.id}, '${user.rol}')" ${currentUser.id == user.id ? 'disabled' : ''}>Cambiar Rol</button>
+                                        ${user.activo ? 
+                                            `<button class="btn btn-sm" onclick="showDeleteOptions(${user.id}, '${user.nombre}')" style="background: #ff4757; color: white;" ${currentUser.id == user.id ? 'disabled' : ''}>Eliminar</button>` :
+                                            `<button class="btn btn-sm" onclick="reactivateUser(${user.id}, '${user.nombre}')" style="background: #28a745; color: white;">Reactivar</button>`
+                                        }
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    `;
+                    container.appendChild(table);
+                } else {
+                    container.innerHTML = `<p class="error-message">${result.message}</p>`;
+                }
+            } catch (error) {
+                document.getElementById('usersList').innerHTML = '<p class="error-message">Error al cargar la lista de usuarios.</p>';
+            }
+        }
+
+        async function handleUserSubmit(e) {
+            e.preventDefault();
+            if (!isAdmin) return;
+
+            const userId = document.getElementById('editUserId').value;
+            const userData = {
+                id: userId,
+                nombre: document.getElementById('editUserName').value,
+                email: document.getElementById('editUserEmail').value,
+                rol: document.getElementById('editUserRol').value,
+                activo: document.getElementById('editUserActivo').value === '1'
+            };
+
+            try {
+                const response = await fetch(API_URL + 'usuarios.php', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentUser.id}` },
+                    body: JSON.stringify(userData)
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showSuccessMessage(result.message);
+                    closeModal('editUserModal');
+                    displayUsers(); // Refresh the user list
+                } else {
+                    showErrorMessage(result.message);
+                }
+            } catch (error) {
+                showErrorMessage('Error al conectar con el servidor para actualizar el usuario.');
+            }
+        }
+
+        function openEditUserModal(userId) {
+            const user = users.find(u => u.id == userId);
+            if (!user) return;
+            document.getElementById('editUserId').value = user.id;
+            document.getElementById('editUserName').value = user.nombre;
+            document.getElementById('editUserEmail').value = user.email;
+            document.getElementById('editUserRol').value = user.rol;
+            document.getElementById('editUserActivo').value = user.activo ? '1' : '0';
+            openModal('editUserModal');
+        }
+
+        async function updateUserRole(userId, currentRole) {
+            const newRole = prompt(`El rol actual es '${currentRole}'. Ingrese el nuevo rol (admin/usuario):`, currentRole);
+            if (newRole && newRole.trim() !== '' && newRole !== currentRole && (newRole === 'admin' || newRole === 'usuario')) {
+                try {
+                    const response = await fetch(API_URL + 'usuarios.php', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentUser.id}` },
+                        body: JSON.stringify({ id: userId, rol: newRole })
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        showSuccessMessage(result.message);
+                        displayUsers();
+                    } else {
+                        showErrorMessage(result.message);
+                    }
+                } catch (error) {
+                    showErrorMessage('Error de conexión al actualizar el rol.');
+                }
+            }
+        }
+
+        async function deleteUser(userId, userName, tipo = 'soft') {
+            try {
+                const response = await fetch(`${API_URL}usuarios.php?id=${userId}&tipo=${tipo}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${currentUser.id}` }
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showSuccessMessage(result.message);
+                    displayUsers();
+                } else {
+                    showErrorMessage(result.message);
+                }
+            } catch (error) {
+                showErrorMessage('Error de conexión al eliminar el usuario.');
+            }
+        }
+
+        function showDeleteOptions(userId, userName) {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'block';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <span class="close-modal" onclick="this.closest('.modal').remove()">&times;</span>
+                    <h3>Opciones de Eliminación</h3>
+                    <p><strong>Usuario:</strong> ${userName} (ID: ${userId})</p>
+                    
+                    <div style="margin: 20px 0;">
+                        <h4>Seleccione el tipo de eliminación:</h4>
+                        
+                        <div style="margin: 15px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px;">
+                            <h5 style="color: #007bff;">📁 Desactivación (Recomendado)</h5>
+                            <p>El usuario se desactiva pero se mantiene en la base de datos. Se puede reactivar posteriormente.</p>
+                            <ul>
+                                <li>✅ Preserva historial de pedidos</li>
+                                <li>✅ Mantiene integridad de datos</li>
+                                <li>✅ Permite reactivación</li>
+                            </ul>
+                            <button class="btn btn-primary" onclick="confirmSoftDelete(${userId}, '${userName}')">Desactivar Usuario</button>
+                        </div>
+                        
+                        <div style="margin: 15px 0; padding: 15px; border: 1px solid #dc3545; border-radius: 5px;">
+                            <h5 style="color: #dc3545;">🗑️ Eliminación Permanente</h5>
+                            <p><strong>⚠️ PELIGRO:</strong> Esta acción NO se puede deshacer.</p>
+                            <ul>
+                                <li>❌ Pérdida permanente de datos</li>
+                                <li>❌ Solo si no tiene pedidos</li>
+                                <li>❌ Rompe referencias históricas</li>
+                            </ul>
+                            <button class="btn btn-sm" style="background: #dc3545; color: white;" onclick="confirmHardDelete(${userId}, '${userName}')">Eliminar Permanentemente</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function confirmSoftDelete(userId, userName) {
+            if (confirm(`¿Desactivar al usuario '${userName}'? (Se puede reactivar posteriormente)`)) {
+                deleteUser(userId, userName, 'soft');
+                document.querySelector('.modal').remove();
+            }
+        }
+
+        function confirmHardDelete(userId, userName) {
+            const confirmText = prompt(`⚠️ ELIMINACIÓN PERMANENTE ⚠️
+
+Esta acción NO se puede deshacer. El usuario '${userName}' será eliminado completamente de la base de datos.
+
+Para confirmar, escriba: ELIMINAR`);
+            
+            if (confirmText === 'ELIMINAR') {
+                deleteUser(userId, userName, 'hard');
+                document.querySelector('.modal').remove();
+            } else if (confirmText !== null) {
+                alert('Eliminación cancelada. Texto de confirmación incorrecto.');
+            }
+        }
+
+        async function reactivateUser(userId, userName) {
+            if (confirm(`¿Reactivar al usuario '${userName}'?`)) {
+                try {
+                    const response = await fetch(API_URL + 'usuarios.php', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentUser.id}` },
+                        body: JSON.stringify({
+                            id: userId,
+                            activo: true
+                        })
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        showSuccessMessage(`Usuario '${userName}' reactivado exitosamente.`);
+                        displayUsers();
+                    } else {
+                        showErrorMessage(result.message);
+                    }
+                } catch (error) {
+                    showErrorMessage('Error de conexión al reactivar el usuario.');
+                }
+            }
+        }
+
+        async function displayOrders() {
+            if (!isAdmin) return;
+            const container = document.getElementById('ordersList');
+            container.innerHTML = '<p>Cargando pedidos...</p>';
+            try {
+                const response = await fetch(API_URL + 'pedidos.php', {
+                    headers: { 'Authorization': `Bearer ${currentUser.id}` }
+                });
+                const result = await response.json();
+                container.innerHTML = '';
+                if (result.success) {
+                    const orders = result.orders;
+                    if (orders.length === 0) {
+                        container.innerHTML = '<p>No se han realizado pedidos todavía.</p>';
+                        return;
+                    }
+                    const table = document.createElement('table');
+                    table.className = 'admin-table';
+                    table.innerHTML = `
+                        <thead><tr><th>ID Pedido</th><th>Fecha</th><th>Cliente</th><th>Total</th><th>Estado</th></tr></thead>
+                        <tbody>
+                            ${orders.map(order => `
+                                <tr onclick="showOrderDetails(${order.id})">
+                                    <td>${order.id}</td>
+                                    <td>${new Date(order.fecha_pedido).toLocaleString()}</td>
+                                    <td>${order.cliente_nombre || 'Cliente'}</td>
+                                    <td>${parseFloat(order.total).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}</td>
+                                    <td><span class="status-${order.estado}">${order.estado}</span></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    `;
+                    container.appendChild(table);
+                } else {
+                    container.innerHTML = `<p class="error-message">${result.message}</p>`;
+                }
+            } catch (error) {
+                container.innerHTML = '<p class="error-message">Error al cargar la lista de pedidos.</p>';
+            }
+        }
+
+        async function showOrderDetails(orderId) {
+            const container = document.getElementById('orderDetailsContent');
+            container.innerHTML = '<p>Cargando detalles...</p>';
+            openModal('orderDetailsModal');
+            try {
+                const response = await fetch(`${API_URL}pedidos.php?id=${orderId}`, {
+                    headers: { 'Authorization': `Bearer ${currentUser.id}` }
+                });
+                const result = await response.json();
+                if (result.success) {
+                    const order = result.order;
+                    let detailsHtml = `
+                        <p><strong>ID Pedido:</strong> ${order.id}</p>
+                        <p><strong>Fecha:</strong> ${new Date(order.fecha_pedido).toLocaleString()}</p>
+                        <p><strong>Cliente:</strong> ${order.cliente_nombre || 'Cliente'}</p>
+                        <p><strong>Email:</strong> ${order.cliente_email || 'No disponible'}</p>
+                        <p><strong>Total:</strong> ${parseFloat(order.total).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}</p>
+                        <p><strong>Estado:</strong> <span class="status-${order.estado}">${order.estado.charAt(0).toUpperCase() + order.estado.slice(1)}</span></p>
+                        <p><strong>Dirección de Envío:</strong> ${order.direccion_envio || 'No especificada'}</p>
+                    `;
+                    
+                    // Agregar selector de estado solo para administradores
+                    if (isAdmin) {
+                        detailsHtml += `
+                        <hr style="margin: 1rem 0;">
+                        <div style="margin: 1rem 0;">
+                            <label for="orderStatus"><strong>Cambiar Estado:</strong></label>
+                            <select id="orderStatus" style="margin-left: 10px; padding: 5px;">
+                                <option value="pendiente" ${order.estado === 'pendiente' ? 'selected' : ''}>Pendiente</option>
+                                <option value="procesando" ${order.estado === 'procesando' ? 'selected' : ''}>Procesando</option>
+                                <option value="enviado" ${order.estado === 'enviado' ? 'selected' : ''}>Enviado</option>
+                                <option value="entregado" ${order.estado === 'entregado' ? 'selected' : ''}>Entregado</option>
+                                <option value="cancelado" ${order.estado === 'cancelado' ? 'selected' : ''}>Cancelado</option>
+                            </select>
+                            <button onclick="updateOrderStatus(${order.id})" class="btn btn-primary" style="margin-left: 10px;">Actualizar Estado</button>
+                        </div>
+                        `;
+                    }
+                    
+                    detailsHtml += `
+                        <hr style="margin: 1rem 0;">
+                        <h4>Productos:</h4>
+                    `;
+                    const productTable = document.createElement('table');
+                    productTable.className = 'admin-table';
+                    productTable.innerHTML = `
+                        <thead><tr><th>Producto</th><th>Cantidad</th><th>Precio Unit.</th><th>Subtotal</th></tr></thead>
+                        <tbody>
+                            ${order.detalles.map(item => {
+                                const subtotal = parseFloat(item.precio_unitario) * parseInt(item.cantidad);
+                                return `
+                                <tr>
+                                    <td>${item.nombre}</td>
+                                    <td>${item.cantidad}</td>
+                                    <td>${parseFloat(item.precio_unitario).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}</td>
+                                    <td>${subtotal.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}</td>
+                                </tr>`;
+                            }).join('')}
+                        </tbody>
+                    `;
+                    container.innerHTML = detailsHtml;
+                    container.appendChild(productTable);
+                } else {
+                    container.innerHTML = `<p class="error-message">${result.message}</p>`;
+                }
+            } catch (error) {
+                container.innerHTML = '<p class="error-message">Error al cargar los detalles.</p>';
+            }
+        }
+
+        async function updateOrderStatus(orderId) {
+            const newStatus = document.getElementById('orderStatus').value;
+            
+            try {
+                const requestData = {
+                    id: orderId,
+                    estado: newStatus
+                };
+                
+                const response = await fetch(API_URL + 'pedidos.php', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${currentUser.id}`
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showSuccessMessage('Estado del pedido actualizado exitosamente');
+                    // Recargar los detalles del pedido
+                    showOrderDetails(orderId);
+                    // Recargar la lista de pedidos
+                    displayOrders();
+                } else {
+                    showErrorMessage(result.message || 'Error al actualizar el estado');
+                }
+            } catch (error) {
+                showErrorMessage('Error al actualizar el estado del pedido');
+            }
+        }
+
+        async function handleProductSubmit(e) {
+            e.preventDefault();
+            if (!isAdmin) return;
+
+            const productId = document.getElementById('productId').value;
+            const categoryMap = { 'ropa': 1, 'accesorios': 2, 'decoracion': 3 };
+
+            const formData = new FormData();
+            formData.append('nombre', document.getElementById('productName').value);
+            formData.append('descripcion', document.getElementById('productDescription').value);
+            formData.append('precio', document.getElementById('productPrice').value);
+            formData.append('stock', document.getElementById('productStock').value);
+            formData.append('categoria_id', categoryMap[document.getElementById('productCategory').value]);
+            
+            if (productId) {
+                formData.append('id', productId);
+            }
+
+            const imageFile = document.getElementById('productImage').files[0];
+            if (imageFile) {
+                formData.append('imagen', imageFile);
+            }
+
+            // Para PUT, FormData no funciona como se espera con PHP para actualizaciones parciales.
+            // PHP no puede leer multipart/form-data desde el input stream (php://input) para PUT.
+            // El método debe ser POST, y controlaremos la acción (crear/actualizar) con un campo.
+            formData.append('action', productId ? 'update' : 'create');
+
+            try {
+                const response = await fetch(API_URL + 'productos.php', {
+                    method: 'POST', // Usar siempre POST para enviar FormData con archivos
+                    headers: {
+                        // No establecer 'Content-Type', el navegador lo hará por nosotros
+                        'Authorization': `Bearer ${currentUser.id}`
+                    },
+                    body: formData
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showSuccessMessage(result.message);
+                    closeModal('addProductModal');
+                    filterProducts();
+                } else {
+                    showErrorMessage(result.message);
+                }
+            } catch (error) {
+                console.error('Error en handleProductSubmit:', error);
+                showErrorMessage('Error al conectar con el servidor.');
+            }
+        }
+
+        async function deleteProduct(productId) {
+            if (!isAdmin) return;
+            if (confirm('¿Estás seguro de que quieres eliminar este producto?')) {
+                try {
+                    const response = await fetch(`${API_URL}productos.php?id=${productId}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${currentUser.id}` }
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        showSuccessMessage(result.message);
+                        filterProducts();
+                    } else {
+                        showErrorMessage(result.message);
+                    }
+                } catch (error) {
+                    showErrorMessage('Error de conexión al eliminar el producto.');
+                }
+            }
+        }
+
+        function editProduct(productId) {
+            if (!isAdmin) return;
+            const product = products.find(p => p.id == productId);
+            if (!product) return;
+            document.getElementById('modalTitle').textContent = 'Editar Producto';
+            document.getElementById('productId').value = product.id;
+            document.getElementById('productName').value = product.nombre;
+            document.getElementById('productDescription').value = product.descripcion;
+            document.getElementById('productPrice').value = product.precio;
+            document.getElementById('productStock').value = product.stock;
+            const categoryMap = { 1: 'ropa', 2: 'accesorios', 3: 'decoracion' };
+            document.getElementById('productCategory').value = categoryMap[product.categoria_id];
+            openModal('addProductModal');
+        }
+
+        // --- LÓGICA DE PEDIDOS DE USUARIO ---
+        async function displayUserOrders() {
+            if (!currentUser) {
+                document.getElementById('myOrdersList').innerHTML = '<p>Debes iniciar sesión para ver tus pedidos.</p>';
+                return;
+            }
+            const container = document.getElementById('myOrdersList');
+            container.innerHTML = '<p>Cargando tus pedidos...</p>';
+            try {
+                const response = await fetch(API_URL + 'pedidos.php', {
+                    headers: { 'Authorization': `Bearer ${currentUser.id}` }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const result = await response.json();
+                container.innerHTML = '';
+                if (result.success) {
+                    const orders = result.orders;
+                    if (orders.length === 0) {
+                        container.innerHTML = '<p>No has realizado ningún pedido todavía.</p>';
+                        return;
+                    }
+                    const table = document.createElement('table');
+                    table.className = 'admin-table'; // Re-using admin table style
+                    table.innerHTML = `
+                        <thead><tr><th>ID Pedido</th><th>Fecha</th><th>Total</th><th>Estado</th><th>Dirección de Envío</th><th>Acciones</th></tr></thead>
+                        <tbody>
+                            ${orders.map(order => {
+                                // Determinar el color del estado del pedido
+                                let estadoClass = 'status-pendiente';
+                                if (order.estado === 'procesando') estadoClass = 'status-procesando';
+                                else if (order.estado === 'enviado') estadoClass = 'status-enviado';
+                                else if (order.estado === 'entregado') estadoClass = 'status-entregado';
+                                else if (order.estado === 'cancelado') estadoClass = 'status-cancelado';
+                                
+                                return `
+                                <tr>
+                                    <td>${order.id}</td>
+                                    <td>${new Date(order.fecha_pedido).toLocaleString()}</td>
+                                    <td>${parseFloat(order.total).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}</td>
+                                    <td><span class="${estadoClass}">${order.estado.charAt(0).toUpperCase() + order.estado.slice(1)}</span></td>
+                                    <td>${order.direccion_envio || 'No especificada'}</td>
+                                    <td><button class="btn btn-secondary" onclick="showOrderDetails(${order.id})">Ver Detalles</button></td>
+                                </tr>`;
+                            }).join('')}
+                        </tbody>
+                    `;
+                    container.appendChild(table);
+                } else {
+                    container.innerHTML = `<p class="error-message">${result.message}</p>`;
+                }
+            } catch (error) {
+                container.innerHTML = `<p class="error-message">Error al cargar tus pedidos. ${error.message}</p>`;
+            }
+        }
+
+        // Inicialización y Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Carga inicial
+            filterProducts(); // Carga inicial de productos con filtros por defecto
+            updateCartDisplay();
+
+            // Listeners para formularios
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            document.getElementById('registerForm').addEventListener('submit', handleRegistration);
+            document.getElementById('checkoutForm').addEventListener('submit', handleCheckout);
+            document.getElementById('addProductForm').addEventListener('submit', handleProductSubmit);
+            document.getElementById('editUserForm').addEventListener('submit', handleUserSubmit);
+            document.getElementById('forgotPasswordForm').addEventListener('submit', handleForgotPassword);
+            document.getElementById('resetPasswordForm').addEventListener('submit', handleResetPassword);
+
+            // Comprobar si hay un token de reseteo en la URL
+            const hash = window.location.hash;
+            if (hash && hash.startsWith('#reset-token=')) {
+                resetToken = hash.substring(13);
+                showPage('login');
+                openModal('resetPasswordModal');
+            }
+        });
+
+        // Cargar productos desde la API
+        async function loadProducts(sort = 'default') {
+            try {
+                const response = await fetch(`${API_URL}productos.php?sort=${sort}`);
+                if (!response.ok) {
+                    throw new Error(`Error de red: ${response.statusText}`);
+                }
+                products = await response.json();
+                // Las llamadas a funciones de admin se harán desde los tabs correspondientes
+                // para asegurar que el usuario es admin.
+            } catch (error) {
+                console.error('Error al cargar los productos:', error);
+                document.getElementById('productsGrid').innerHTML =
+                    '<p style="color: red; text-align: center; grid-column: 1 / -1;">Error al cargar productos. Asegúrate de que el servidor local (Laragon) esté funcionando y la URL de la API sea correcta.</p>';
+            }
+        }
+
+        async function loadUserCart() {
+            if (!currentUser) {
+                cart = [];
+                updateCartDisplay();
+                return;
+            }
+            try {
+                const response = await fetch(API_URL + 'carrito.php', {
+                    headers: { 'Authorization': `Bearer ${currentUser.id}` }
+                });
+                const result = await response.json();
+                if (result.success) {
+                    cart = result.cart.map(item => {
+                        const productInfo = products.find(p => p.id == item.producto_id);
+                        return { ...productInfo, id: item.producto_id, quantity: parseInt(item.cantidad, 10) };
+                    });
+                } else {
+                    cart = [];
+                }
+                updateCartDisplay();
+            } catch (error) {
+                console.error('Error al cargar el carrito:', error);
+                cart = [];
+                updateCartDisplay();
+            }
+        }
+
+        // Navegación entre páginas
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            if (pageId === 'cart') displayCart();
+            if (pageId === 'checkout') updateCheckoutSummary();
+            if (pageId === 'my-orders') displayUserOrders();
+            if (pageId === 'admin') {
+                document.querySelector('.admin-tab.active').classList.remove('active');
+                document.querySelector('.admin-content.active').classList.remove('active');
+                document.querySelector('.admin-tab').classList.add('active'); // First tab (Dashboard)
+                document.getElementById('dashboard').classList.add('active');
+                updateAdminStats();
+            }
+        }
+
+        // --- LÓGICA DE PRODUCTOS Y FILTROS ---
+        function filterProducts() {
+            const sortOrder = document.getElementById('sortFilter').value;
+            
+            loadProducts(sortOrder).then(() => {
+                const categoryFilter = document.getElementById('categoryFilter').value;
+                const priceFilter = document.getElementById('priceFilter').value;
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+                let filteredProducts = products.filter(product => {
+                    let matchesCategory = !categoryFilter || product.categoria_nombre === categoryFilter;
+                    let matchesPrice = true;
+                    if (priceFilter) {
+                        const [min, max] = priceFilter.split('-').map(Number);
+                        matchesPrice = product.precio >= min && product.precio <= (max || Infinity);
+                    }
+                    let matchesSearch = product.nombre.toLowerCase().includes(searchTerm) || 
+                                     (product.descripcion && product.descripcion.toLowerCase().includes(searchTerm));
+                    return matchesCategory && matchesPrice && matchesSearch;
+                });
+                displayProducts(filteredProducts);
+                // Actualizar la lista de productos del admin si la pestaña está activa
+                if(document.getElementById('products-admin').classList.contains('active')) {
+                    updateAdminProductsList();
+                }
+            });
+        }
+
+        function displayProducts(productsToShow = products) {
+            const grid = document.getElementById('productsGrid');
+            grid.innerHTML = '';
+            if (productsToShow.length === 0) {
+                grid.innerHTML = '<p style="text-align: center; grid-column: 1 / -1;">No se encontraron productos que coincidan con los filtros.</p>';
+                return;
+            }
+            productsToShow.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                const price = parseFloat(product.precio);
+                productCard.innerHTML = `
+                    <img src="${product.imagen}" alt="${product.nombre}" class="product-image">
+                    <div class="product-info">
+                        <div class="product-name">${product.nombre}</div>
+                        <p class="product-description">${product.descripcion}</p>
+                        <div class="product-price">${price.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}</div>
+                        <p style="color: ${product.stock > 0 ? '#28a745' : '#dc3545'}; margin-bottom: 1rem;">
+                            ${product.stock > 0 ? `Stock: ${product.stock}` : 'Agotado'}
+                        </p>
+                        <button class="btn btn-primary" onclick="addToCart(${product.id})" 
+                                ${product.stock == 0 ? 'disabled' : ''}>
+                            ${product.stock == 0 ? 'Agotado' : 'Agregar al Carrito'}
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(productCard);
+            });
+        }
+
+        // --- LÓGICA DEL CARRITO ---
+        async function addToCart(productId) {
+            if (!currentUser) {
+                showErrorMessage('Debes iniciar sesión para agregar productos al carrito.');
+                showPage('login');
+                return;
+            }
+            const product = products.find(p => p.id == productId);
+            if (!product || product.stock == 0) return;
+            try {
+                const response = await fetch(API_URL + 'carrito.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentUser.id}` },
+                    body: JSON.stringify({ producto_id: productId, cantidad: 1 })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showSuccessMessage(result.message);
+                    await loadUserCart();
+                } else {
+                    showErrorMessage(result.message);
+                }
+            } catch (error) {
+                showErrorMessage('Error al conectar con el servidor para agregar el producto.');
+            }
+        }
+
+        function updateCartDisplay() {
+            const cartCount = document.getElementById('cartCount');
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartCount.textContent = totalItems;
+            const checkoutBtn = document.getElementById('checkoutBtn');
+            if (checkoutBtn) checkoutBtn.disabled = totalItems === 0;
+        }
+
+        function displayCart() {
+            const cartItemsContainer = document.getElementById('cartItems');
+            const cartTotal = document.getElementById('cartTotal');
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = '<p style="text-align: center; color: #666;">Tu carrito está vacío</p>';
+                cartTotal.textContent = '0';
+                return;
+            }
+            let total = 0;
+            cartItemsContainer.innerHTML = '';
+            cart.forEach(item => {
+                const itemTotal = parseFloat(item.precio) * item.quantity;
+                total += itemTotal;
+                const cartItem = document.createElement('div');
+                cartItem.className = 'cart-item';
+                cartItem.innerHTML = `
+                    <div>
+                        <h4>${item.nombre}</h4>
+                        <p>Precio: ${parseFloat(item.precio).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}</p>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <button onclick="updateQuantity(${item.id}, -1)" class="btn btn-secondary">-</button>
+                        <span>${item.quantity}</span>
+                        <button onclick="updateQuantity(${item.id}, 1)" class="btn btn-secondary">+</button>
+                        <button onclick="removeFromCart(${item.id})" class="btn" style="background: #ff4757; color: white;">🗑️</button>
+                    </div>
+                    <div><strong>${itemTotal.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}</strong></div>
+                `;
+                cartItemsContainer.appendChild(cartItem);
+            });
+            cartTotal.textContent = total.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 });
+        }
+
+        async function updateQuantity(productId, change) {
+            const item = cart.find(item => item.id == productId);
+            if (!item) return;
+            const newQuantity = item.quantity + change;
+            try {
+                const response = await fetch(API_URL + 'carrito.php', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentUser.id}` },
+                    body: JSON.stringify({ producto_id: productId, cantidad: newQuantity })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    await loadUserCart();
+                    displayCart();
+                } else {
+                    showErrorMessage(result.message);
+                }
+            } catch (error) {
+                showErrorMessage('Error al conectar con el servidor para actualizar el producto.');
+            }
+        }
+
+        async function removeFromCart(productId) {
+            try {
+                const response = await fetch(`${API_URL}carrito.php?producto_id=${productId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${currentUser.id}` }
+                });
+                const result = await response.json();
+                if (result.success) {
+                    await loadUserCart();
+                    displayCart();
+                } else {
+                    showErrorMessage(result.message);
+                }
+            } catch (error) {
+                showErrorMessage('Error al conectar con el servidor para eliminar el producto.');
+            }
+        }
+
+        // --- LÓGICA DE AUTENTICACIÓN Y FORMULARIOS ---
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            try {
+                const response = await fetch(API_URL + 'login.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password }),
+                });
+                const result = await response.json();
+                if (result.success) {
+                    currentUser = result.user;
+                    isAdmin = currentUser.rol === 'admin';
+                    updateAuthUI();
+                    showPage('home');
+                    showSuccessMessage(result.message);
+                    document.getElementById('loginForm').reset();
+                    loadUserCart();
+                    if (isAdmin) {
+                        // Precargar datos del admin en segundo plano
+                        updateAdminStats();
+                    }
+                } else {
+                    showErrorMessage(result.message);
+                }
+            } catch (error) {
+                showErrorMessage('Ocurrió un error al intentar iniciar sesión.');
+            }
+        }
+
+        async function handleRegistration(e) {
+            e.preventDefault();
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+            if (password !== confirmPassword) {
+                showErrorMessage('Las contraseñas no coinciden.');
+                return;
+            }
+            try {
+                const response = await fetch(API_URL + 'registro.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nombre: name, email, password }),
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showSuccessMessage(result.message);
+                    showPage('login');
+                    document.getElementById('registerForm').reset();
+                } else {
+                    showErrorMessage(result.message);
+                }
+            } catch (error) {
+                showErrorMessage('Ocurrió un error al intentar registrarse.');
+            }
+        }
+
+        // --- LÓGICA DE PROCESAMIENTO DE PAGO ---
+        async function handleCheckout(e) {
+            e.preventDefault();
+            if (!currentUser) {
+                showErrorMessage('Debes iniciar sesión para poder comprar.');
+                showPage('login');
+                return;
+            }
+            if (cart.length === 0) {
+                showErrorMessage('Tu carrito está vacío.');
+                return;
+            }
+
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            
+            // Validar método de pago
+            if (!paymentMethod) {
+                showErrorMessage('Por favor selecciona un método de pago.');
+                return;
+            }
+
+            // Si es MercadoPago, validar tarjeta
+            if (paymentMethod === 'mercadopago') {
+                const cardValidation = validateCreditCard();
+                if (!cardValidation.isValid) {
+                    showErrorMessage('Error en los datos de la tarjeta: ' + cardValidation.error);
+                    return;
+                }
+            }
+
+            // Mostrar procesamiento
+            showPaymentProcessing();
+
+            try {
+                let paymentData = {
+                    nombre: document.getElementById('checkoutName').value,
+                    email: document.getElementById('checkoutEmail').value,
+                    telefono: document.getElementById('checkoutPhone').value,
+                    direccion: document.getElementById('checkoutAddress').value,
+                    metodo_pago: paymentMethod
+                };
+
+                // Agregar datos de tarjeta si es MercadoPago
+                if (paymentMethod === 'mercadopago') {
+                    paymentData.tarjeta = {
+                        numero: document.getElementById('cardNumber').value.replace(/\s/g, ''),
+                        fecha_exp: document.getElementById('expiryDate').value,
+                        cvv: document.getElementById('cvvCode').value,
+                        titular: document.getElementById('cardHolderName').value,
+                        cuotas: document.getElementById('installments').value
+                    };
+                }
+
+                // Simular procesamiento de pago (2-3 segundos)
+                await new Promise(resolve => setTimeout(resolve, 2500));
+
+                const total = cart.reduce((sum, item) => sum + (parseFloat(item.precio) * item.quantity), 0);
+                const orderData = { 
+                    cart, 
+                    total, 
+                    datos_entrega: paymentData,
+                    estado_pago: 'pagado'
+                };
+
+                const response = await fetch(API_URL + 'pedidos.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentUser.id}` },
+                    body: JSON.stringify(orderData)
+                });
+                
+                const result = await response.json();
+                
+                hidePaymentProcessing();
+                
+                if (result.success) {
+                    showPaymentSuccess(result.order_id || 'N/A');
+                    cart = [];
+                    updateCartDisplay();
+                    displayCart();
+                    document.getElementById('checkoutForm').reset();
+                    setTimeout(() => {
+                        showPage('home');
+                    }, 3000);
+                } else {
+                    showErrorMessage(result.message || 'Hubo un problema al procesar tu pedido.');
+                }
+            } catch (error) {
+                hidePaymentProcessing();
+                showErrorMessage('Error de conexión al intentar finalizar la compra.');
+            }
+        }
+
+        // Validación de tarjeta de crédito
+        function validateCreditCard() {
+            const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
+            const expiryDate = document.getElementById('expiryDate').value;
+            const cvv = document.getElementById('cvvCode').value;
+            const cardHolder = document.getElementById('cardHolderName').value;
+
+            // Validar número de tarjeta (algoritmo de Luhn)
+            if (!isValidCardNumber(cardNumber)) {
+                return { isValid: false, error: 'Número de tarjeta inválido' };
+            }
+
+            // Validar fecha de expiración
+            if (!isValidExpiryDate(expiryDate)) {
+                return { isValid: false, error: 'Fecha de expiración inválida' };
+            }
+
+            // Validar CVV
+            if (!isValidCVV(cvv)) {
+                return { isValid: false, error: 'Código CVV inválido' };
+            }
+
+            // Validar nombre del titular
+            if (!cardHolder || cardHolder.length < 2) {
+                return { isValid: false, error: 'Nombre del titular requerido' };
+            }
+
+            return { isValid: true };
+        }
+
+        // Algoritmo de Luhn para validar número de tarjeta
+        function isValidCardNumber(number) {
+            if (!/^\d{13,19}$/.test(number)) return false;
+            
+            let sum = 0;
+            let alternate = false;
+            
+            for (let i = number.length - 1; i >= 0; i--) {
+                let digit = parseInt(number.charAt(i));
+                
+                if (alternate) {
+                    digit *= 2;
+                    if (digit > 9) {
+                        digit = (digit % 10) + 1;
+                    }
+                }
+                
+                sum += digit;
+                alternate = !alternate;
+            }
+            
+            return (sum % 10) === 0;
+        }
+
+        // Validar fecha de expiración
+        function isValidExpiryDate(expiryDate) {
+            if (!/^\d{2}\/\d{2}$/.test(expiryDate)) return false;
+            
+            const [month, year] = expiryDate.split('/').map(Number);
+            const currentDate = new Date();
+            const currentYear = currentDate.getFullYear() % 100;
+            const currentMonth = currentDate.getMonth() + 1;
+            
+            if (month < 1 || month > 12) return false;
+            if (year < currentYear || (year === currentYear && month < currentMonth)) return false;
+            
+            return true;
+        }
+
+        // Validar CVV
+        function isValidCVV(cvv) {
+            return /^\d{3,4}$/.test(cvv);
+        }
+
+        // Detectar tipo de tarjeta
+        function detectCardType(number) {
+            const cleanNumber = number.replace(/\s/g, '');
+            
+            if (/^4/.test(cleanNumber)) return { type: 'Visa', icon: '💳' };
+            if (/^5[1-5]/.test(cleanNumber)) return { type: 'MasterCard', icon: '💳' };
+            if (/^3[47]/.test(cleanNumber)) return { type: 'American Express', icon: '💳' };
+            
+            return { type: '', icon: '' };
+        }
+
+        // Mostrar procesamiento de pago
+        function showPaymentProcessing() {
+            const modal = document.createElement('div');
+            modal.id = 'paymentProcessingModal';
+            modal.className = 'modal active';
+            modal.innerHTML = `
+                <div class="modal-content processing-payment">
+                    <div class="spinner"></div>
+                    <h3>🔒 Procesando Pago Seguro</h3>
+                    <p>Por favor, no cierres esta ventana ni presiones el botón "Atrás" del navegador.</p>
+                    <p>Estamos validando tus datos de pago...</p>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        // Ocultar procesamiento de pago
+        function hidePaymentProcessing() {
+            const modal = document.getElementById('paymentProcessingModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        // Mostrar éxito del pago
+        function showPaymentSuccess(orderId) {
+            const modal = document.createElement('div');
+            modal.id = 'paymentSuccessModal';
+            modal.className = 'modal active';
+            modal.innerHTML = `
+                <div class="modal-content" style="text-align: center;">
+                    <div style="font-size: 4rem; color: #28a745; margin-bottom: 1rem;">✅</div>
+                    <h3 style="color: #28a745;">¡Pago Procesado Exitosamente!</h3>
+                    <p><strong>ID del Pedido:</strong> #${orderId}</p>
+                    <p>Recibirás un email de confirmación en breve.</p>
+                    <p style="color: #666; font-size: 0.9rem;">Serás redirigido automáticamente...</p>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            
+            setTimeout(() => {
+                modal.remove();
+            }, 3000);
+        }
+
+        // Alternar formulario de pago
+        function togglePaymentForm() {
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            const creditCardForm = document.getElementById('creditCardForm');
+            
+            if (paymentMethod === 'mercadopago') {
+                creditCardForm.style.display = 'block';
+                setupCardInputs();
+            } else {
+                creditCardForm.style.display = 'none';
+            }
+        }
+
+        // Configurar inputs de tarjeta con formateado
+        function setupCardInputs() {
+            const cardNumberInput = document.getElementById('cardNumber');
+            const expiryInput = document.getElementById('expiryDate');
+            const cvvInput = document.getElementById('cvvCode');
+            const cardHolderInput = document.getElementById('cardHolderName');
+
+            // Formatear número de tarjeta
+            cardNumberInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\s/g, '').replace(/[^0-9]/gi, '');
+                let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+                e.target.value = formattedValue;
+                
+                // Detectar tipo de tarjeta
+                const cardType = detectCardType(value);
+                document.getElementById('cardType').textContent = cardType.type;
+                
+                // Validación en tiempo real
+                if (value.length >= 13) {
+                    const isValid = isValidCardNumber(value);
+                    showFieldValidation(cardNumberInput, isValid, isValid ? '✓ Tarjeta válida' : '✗ Número inválido');
+                }
+            });
+
+            // Formatear fecha de expiración
+            expiryInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/[^0-9]/g, '');
+                if (value.length >= 2) {
+                    value = value.substring(0, 2) + '/' + value.substring(2, 4);
+                }
+                e.target.value = value;
+                
+                if (value.length === 5) {
+                    const isValid = isValidExpiryDate(value);
+                    showFieldValidation(expiryInput, isValid, isValid ? '✓ Fecha válida' : '✗ Fecha inválida');
+                }
+            });
+
+            // Validar CVV
+            cvvInput.addEventListener('input', function(e) {
+                e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                
+                if (e.target.value.length >= 3) {
+                    const isValid = isValidCVV(e.target.value);
+                    showFieldValidation(cvvInput, isValid, isValid ? '✓ CVV válido' : '✗ CVV inválido');
+                }
+            });
+
+            // Convertir a mayúsculas el nombre del titular
+            cardHolderInput.addEventListener('input', function(e) {
+                e.target.value = e.target.value.toUpperCase();
+            });
+        }
+
+        // Mostrar validación de campo
+        function showFieldValidation(input, isValid, message) {
+            // Remover validación anterior
+            const existingValidation = input.parentNode.querySelector('.form-validation-error, .form-validation-success');
+            if (existingValidation) {
+                existingValidation.remove();
+            }
+            
+            // Agregar nueva validación
+            const validationDiv = document.createElement('div');
+            validationDiv.className = isValid ? 'form-validation-success' : 'form-validation-error';
+            validationDiv.textContent = message;
+            input.parentNode.appendChild(validationDiv);
+        }
+
+        // Actualizar resumen de checkout
+        function updateCheckoutSummary() {
+            const container = document.getElementById('checkoutCartItems');
+            const totalElement = document.getElementById('checkoutTotal');
+            
+            if (!container || !totalElement) return;
+            
+            container.innerHTML = '';
+            let total = 0;
+            
+            cart.forEach(item => {
+                const itemTotal = parseFloat(item.precio) * item.quantity;
+                total += itemTotal;
+                
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'checkout-item';
+                itemDiv.innerHTML = `
+                    <span>${item.nombre} x${item.quantity}</span>
+                    <span>${itemTotal.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}</span>
+                `;
+                container.appendChild(itemDiv);
+            });
+            
+            totalElement.textContent = total.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 });
+        }
+
+        async function handleForgotPassword(e) {
+            e.preventDefault();
+            const email = document.getElementById('forgotEmail').value;
+            try {
+                const response = await fetch(API_URL + 'forgot_password.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    closeModal('forgotPasswordModal');
+                    if (result.token_for_testing) {
+                        const resetLink = `${window.location.href.split('#')[0]}#reset-token=${result.token_for_testing}`;
+                        prompt(result.message + "\n\n--- SOLO PARA PRUEBAS ---\nCopia este enlace de reseteo:", resetLink);
+                    } else {
+                        alert(result.message);
+                    }
+                } else {
+                    showErrorMessage(result.message);
+                }
+            } catch (error) {
+                showErrorMessage('Error de conexión.');
+            }
+        }
+
+        async function handleResetPassword(e) {
+            e.preventDefault();
+            const password = document.getElementById('resetNewPassword').value;
+            const confirmPassword = document.getElementById('resetConfirmPassword').value;
+            if (password !== confirmPassword) {
+                showErrorMessage('Las contraseñas no coinciden.');
+                return;
+            }
+            if (!resetToken) {
+                showErrorMessage('No se encontró un token de restablecimiento válido.');
+                return;
+            }
+            try {
+                const response = await fetch(API_URL + 'reset_password.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: resetToken, password: password })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    closeModal('resetPasswordModal');
+                    showSuccessMessage(result.message);
+                    resetToken = null;
+                    window.location.hash = '';
+                    showPage('login');
+                } else {
+                    showErrorMessage(result.message);
+                }
+            } catch (error) {
+                showErrorMessage('Error de conexión.');
+            }
+        }
+
+        function updateAuthUI() {
+            const authButton = document.getElementById('authButton');
+            const adminButton = document.getElementById('adminButton');
+            const myOrdersButton = document.getElementById('myOrdersButton');
+            if (currentUser) {
+                authButton.innerHTML = `
+                    <span style="margin-right: 1rem;">Hola, ${currentUser.nombre}</span>
+                    <button class="btn btn-secondary" onclick="logout()">Cerrar Sesión</button>
+                `;
+                if (isAdmin) {
+                    adminButton.style.display = 'block';
+                    myOrdersButton.style.display = 'none';
+                } else {
+                    adminButton.style.display = 'none';
+                    myOrdersButton.style.display = 'block';
+                }
+            } else {
+                authButton.innerHTML = '<a href="#" class="btn btn-primary" onclick="showPage(\'login\')">Iniciar Sesión</a>';
+                adminButton.style.display = 'none';
+                myOrdersButton.style.display = 'none';
+            }
+        }
+
+        function logout(){
+            currentUser = null;
+            isAdmin = false;
+            cart = [];
+            updateAuthUI();
+            updateCartDisplay();
+            showPage('home');
+            showSuccessMessage('Sesión cerrada exitosamente');
+        }
+        
+        // --- FUNCIONES UTILITARIAS ---
+        function openAddProductModal() {
+            document.getElementById('modalTitle').textContent = 'Agregar Nuevo Producto';
+            document.getElementById('productId').value = '';
+            document.getElementById('addProductForm').reset();
+            document.getElementById('addProductModal').classList.add('active');
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function showSuccessMessage(message) { showMessage(message, 'success'); }
+        function showErrorMessage(message) { showMessage(message, 'error'); }
+
+        function showMessage(message, type) {
+            const existingMessage = document.querySelector('.success-message, .error-message');
+            if (existingMessage) existingMessage.remove();
+            const messageDiv = document.createElement('div');
+            messageDiv.className = type === 'success' ? 'success-message' : 'error-message';
+            messageDiv.textContent = message;
+            messageDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 3000; max-width: 300px;';
+            document.body.appendChild(messageDiv);
+            setTimeout(() => messageDiv.remove(), 4000);
+        }
+
+        window.addEventListener('click', e => {
+            if (e.target.classList.contains('modal')) {
+                e.target.classList.remove('active');
+            }
+        });
+    </script>

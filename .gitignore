@@ -1,0 +1,11 @@
+# Archivos de configuración de Laragon y otros entornos locales
+.vscode/
+.idea/
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos de respaldo o temporales
+*.bak
+*.tmp
