@@ -1,6 +1,6 @@
-# 🏖️ Nattier Store - Moda de Playa
+# 🏖️ Nattier Store - Artesanias
 
-**E-commerce de bikinis y moda de playa con sistema de pago simulado tipo MercadoPago**
+**E-commerce de Descubre productos artesanales hechos a mano con amor y tradición con sistema de pago simulado tipo MercadoPago**
 
 ## ✨ Características Principales
 
